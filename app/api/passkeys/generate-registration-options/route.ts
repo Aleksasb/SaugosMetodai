@@ -18,7 +18,20 @@ export async function POST(req: Request) {
 
   try {
     let user = await prisma.user.findUnique({ where: { email } });
-    if (!user) {
+    if (user) {
+      // Adding a passkey to an existing account requires being signed in as
+      // that account (e.g. after recovery). Otherwise anyone could attach their
+      // own passkey to someone else's email.
+      if (!(session.isLoggedIn && session.userId === user.id)) {
+        return new NextResponse(
+          JSON.stringify({
+            error:
+              'This email is already registered. Sign in (or use recovery) to add a new passkey.'
+          }),
+          { status: 409, headers: { 'Content-Type': 'application/json' } }
+        );
+      }
+    } else {
       user = await prisma.user.create({ data: { email } });
     }
 
@@ -47,7 +60,7 @@ export async function POST(req: Request) {
     });
 
     session.challenge = options.challenge;
-    session.userId = user.id; // Store userId for verification step
+    session.pendingUserId = user.id; // user this passkey will be attached to
     await session.save();
 
     return new NextResponse(JSON.stringify(options), {

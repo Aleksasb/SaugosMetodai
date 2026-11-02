@@ -12,6 +12,7 @@ model User {
   email        String       @unique
   name         String?
   passwordHash String?
+  birthYear    Int?
   credentials  Credential[]
   createdAt    DateTime     @default(now())
   updatedAt    DateTime     @updatedAt

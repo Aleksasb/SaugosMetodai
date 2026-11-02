@@ -1,7 +1,6 @@
 import { NextResponse } from 'next/server';
 import { withSession } from '@/lib/withSession';
 import { rpID } from '@/lib/webauthn';
-import { prisma } from '@/lib/prisma';
 import { generateAuthenticationOptions } from '@simplewebauthn/server';
 
 export async function POST(req: Request) {
@@ -16,14 +15,10 @@ export async function POST(req: Request) {
   }
 
   try {
-    const user = await prisma.user.findUnique({ where: { email } });
-    if (!user) {
-      return new NextResponse(
-        JSON.stringify({ error: `User with email ${email} not found.` }),
-        { status: 404, headers: { 'Content-Type': 'application/json' } }
-      );
-    }
-
+    // We deliberately do NOT look the user up or return an error for unknown
+    // emails. The options are identical for everyone (no allowCredentials), so
+    // an attacker can't tell whether an account exists. Unknown users simply
+    // fail later, at verification, with a generic message.
     // Omit allowCredentials to enable Safari resident credential discovery.
     // With a clean passkey state, Safari will prompt for any discoverable credential
     // on this rpID. Once user confirms, we verify against stored credentials.
@@ -33,7 +28,6 @@ export async function POST(req: Request) {
     });
 
     session.challenge = options.challenge;
-    session.userId = user.id; // Store userId for verification step
     await session.save();
 
     return new NextResponse(JSON.stringify(options), {

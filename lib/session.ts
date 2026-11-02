@@ -16,5 +16,8 @@ declare module 'iron-session' {
     email?: string;
     isLoggedIn?: boolean;
     challenge?: string;
+    pendingUserId?: string; // user a passkey is being registered for (not logged in yet)
+    recoveryEmail?: string; // email whose recovery info (birth year) was checked
+    recoveryVerified?: boolean; // true only right after a correct birth year
   }
 }

@@ -9,7 +9,7 @@ export async function POST(req: Request) {
   const body = await req.json();
 
   const expectedChallenge = session.challenge;
-  const userId = session.userId;
+  const userId = session.pendingUserId;
 
   if (!expectedChallenge || !userId) {
     return new NextResponse(
@@ -64,9 +64,13 @@ export async function POST(req: Request) {
       }
     });
 
-    // Clear the challenge and userId from the session
+    // Passkey saved: sign the user in so they can finish setup (recovery info)
+    const owner = await prisma.user.findUnique({ where: { id: userId } });
     session.challenge = undefined;
-    session.userId = undefined;
+    session.pendingUserId = undefined;
+    session.userId = userId;
+    session.email = owner?.email;
+    session.isLoggedIn = true;
     await session.save();
 
     return new NextResponse(JSON.stringify({ verified: true }), {
@@ -79,7 +83,7 @@ export async function POST(req: Request) {
     const err = error as Error;
     // Clear the challenge and userId from the session in case of error
     session.challenge = undefined;
-    session.userId = undefined;
+    session.pendingUserId = undefined;
     await session.save();
     return new NextResponse(JSON.stringify({ error: err.message }), {
       status: 500,

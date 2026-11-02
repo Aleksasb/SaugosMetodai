@@ -26,8 +26,8 @@ export async function POST(req: Request) {
 
     if (!dbCred) {
       return new NextResponse(
-        JSON.stringify({ error: 'Unknown credential', credentialId }),
-        { status: 400, headers: { 'content-type': 'application/json' } }
+        JSON.stringify({ error: 'Sign-in failed.' }),
+        { status: 401, headers: { 'content-type': 'application/json' } }
       );
     }
 
