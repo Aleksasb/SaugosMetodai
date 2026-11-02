@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { withSession } from '@/lib/withSession';
+import { resetSession } from '@/lib/session';
 import { prisma } from '@/lib/prisma';
 import {
   getDummyHash,
@@ -55,6 +56,7 @@ export async function POST(req: Request) {
 
   resetFailures(key);
   session.recoveryEmail = undefined;
+  resetSession(session);
   session.userId = user.id;
   session.email = user.email;
   session.isLoggedIn = true;

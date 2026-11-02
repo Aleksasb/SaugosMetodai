@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { withSession } from '@/lib/withSession';
+import { resetSession } from '@/lib/session';
 import { origin, rpID } from '@/lib/webauthn';
 import { prisma } from '@/lib/prisma';
 import { verifyRegistrationResponse } from '@simplewebauthn/server';
@@ -68,6 +69,7 @@ export async function POST(req: Request) {
     const owner = await prisma.user.findUnique({ where: { id: userId } });
     session.challenge = undefined;
     session.pendingUserId = undefined;
+    resetSession(session);
     session.userId = userId;
     session.email = owner?.email;
     session.isLoggedIn = true;

@@ -11,7 +11,7 @@ const scrypt = promisify(scryptCb) as (
 const KEYLEN = 64;
 const PARAMS = { N: 16384, r: 8, p: 1, maxmem: 64 * 1024 * 1024 };
 
-export const MIN_PASSWORD_LENGTH = 8;
+export const MIN_PASSWORD_LENGTH = 8; // ASVS 6.2.1: minimum 8, 15 strongly recommended
 export const MAX_PASSWORD_LENGTH = 128; // cap input so huge passwords can't be used to burn CPU
 
 /** Returns "scrypt$<salt b64>$<hash b64>" */

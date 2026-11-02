@@ -10,6 +10,14 @@ export const sessionOptions: SessionOptions = {
   }
 };
 
+// Drops everything from the old session data before a login. The cookie is
+// re-sealed on save(), so the browser gets a brand-new token that carries only
+// the new login (ASVS 7.2.4) - no leftover challenge or recovery state.
+export function resetSession(session: object) {
+  const data = session as Record<string, unknown>;
+  for (const key of Object.keys(data)) delete data[key];
+}
+
 declare module 'iron-session' {
   interface IronSessionData {
     userId?: string;

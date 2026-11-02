@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { withSession } from '@/lib/withSession';
+import { resetSession } from '@/lib/session';
 import { origin, rpID } from '@/lib/webauthn';
 import { prisma } from '@/lib/prisma';
 import { verifyAuthenticationResponse } from '@simplewebauthn/server';
@@ -60,6 +61,7 @@ export async function POST(req: Request) {
       data: { counter: authenticationInfo.newCounter }
     });
 
+    resetSession(session);
     session.userId = dbCred.userId;
     session.email = dbCred.user.email;
     session.isLoggedIn = true;

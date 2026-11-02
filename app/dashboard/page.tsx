@@ -34,6 +34,7 @@ export default function DashboardPage() {
   const [loading, setLoading] = useState(true);
   const [birthYear, setBirthYear] = useState('');
   const [password, setPassword] = useState('');
+  const [currentPassword, setCurrentPassword] = useState('');
   const [message, setMessage] = useState('');
 
   useEffect(() => {
@@ -73,12 +74,13 @@ export default function DashboardPage() {
     const resp = await fetch('/api/recovery/set', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ birthYear, password })
+      body: JSON.stringify({ birthYear, password, currentPassword })
     });
     const data = await resp.json();
     if (resp.ok) {
       setMessage('✅ Recovery info saved.');
       setPassword('');
+      setCurrentPassword('');
       setBirthYear('');
       loadUser();
     } else {
@@ -160,6 +162,16 @@ export default function DashboardPage() {
             ? '✅ Recovery is set up. You can change it below.'
             : '⚠️ Not set up. If you lose your passkey you will not be able to get back in. Set a birth year and a recovery password.'}
         </p>
+        {user?.hasRecovery && (
+          <input
+            type='password'
+            placeholder='Current recovery password'
+            value={currentPassword}
+            onChange={(e) => setCurrentPassword(e.target.value)}
+            autoComplete='current-password'
+            style={input}
+          />
+        )}
         <input
           type='number'
           placeholder='Birth year'
@@ -169,7 +181,7 @@ export default function DashboardPage() {
         />
         <input
           type='password'
-          placeholder='Recovery password (min. 8 characters)'
+          placeholder='New recovery password (min. 15 characters)'
           value={password}
           onChange={(e) => setPassword(e.target.value)}
           autoComplete='new-password'
