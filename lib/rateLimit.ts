@@ -1,5 +1,4 @@
 // Very small in-memory limiter (resets when the server restarts).
-// Fine for a school project; use Redis or similar in production.
 const g = globalThis as unknown as { __fails?: Map<string, number[]> };
 const fails = (g.__fails ??= new Map<string, number[]>());
 
